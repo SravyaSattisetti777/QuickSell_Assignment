@@ -1,22 +1,48 @@
-import React, { useEffect } from 'react'
+import { useState } from 'react';
 import './App.css';
-import NavBar from './components/NavBar/NavBar';
-import DashBoard from './components/DashBoard/DashBoard';
-import { useDispatch, useSelector } from 'react-redux'
-import { fetchAllData } from './Actions/DataAction';
-import Loading from './components/Loading/Loading';
-const App = () => {
-  const dispatch = useDispatch();
-  const { allTickets } = useSelector(state => state.DataReducer);
-  useEffect(() => {
-    dispatch(fetchAllData());
-  }, [dispatch])
-  return allTickets ? (
-    <div style={{ paddingTop: "10px" }} >
-      <NavBar />
-      <hr style={{ marginTop: "10px" }} />
-      <DashBoard />
+import Navbar from './Navbar.js';
+import Status from './Status.js';
+import Priority from './Priority';
+import Byuser from './Byuser.js';
+
+function App() {
+  // Set default values if localStorage is empty
+  const [Grouping, setGrouping] = useState(localStorage.getItem('grouping') || 'status');
+  const [Order, setOrder] = useState(localStorage.getItem('order') || 'Priority');
+
+  const setGroupingValue = (newValue) => {
+    if (newValue === 'status' || newValue === 'priority' || newValue === 'user') {
+      setGrouping(newValue);
+      localStorage.setItem('grouping', newValue); // Update localStorage for persistence
+    } else {
+      console.error('Invalid grouping value provided:', newValue);
+    }
+  };
+
+  const setOrderingValue = (newValue) => {
+    if (newValue === 'Priority' || newValue === 'Title') {
+      setOrder(newValue);
+      localStorage.setItem('order', newValue); // Update localStorage for persistence
+    } else {
+      console.error('Invalid ordering value provided:', newValue);
+    }
+  };
+
+  let content;
+  if (Grouping === 'status') {
+    content = <Status order={Order} />;
+  } else if (Grouping === 'priority') {
+    content = <Priority order={Order} />;
+  } else {
+    content = <Byuser order={Order} />;
+  }
+
+  return (
+    <div className='fullBody'>
+      <Navbar order={Order} grouping={Grouping} setGroupingValue={setGroupingValue} setOrderingValue={setOrderingValue} />
+      {content}
     </div>
-  ) : <Loading />
+  );
 }
-export default App
+
+export default App;
